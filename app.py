@@ -134,7 +134,7 @@ def predict_batch_deficiency_detection():
 
 # Load TFLite model and initialize interpreter for Detection
 def load_tflite_model_detection():
-    interpreter = tf.lite.Interpreter(model_path="Detect.tflite")
+    interpreter = tf.lite.Interpreter(model_path="model.tflite")
     interpreter.allocate_tensors()
     return interpreter
 
@@ -171,12 +171,12 @@ def predict_with_tflite(image, interpreter):
 # Deficiency mapping for Detection
 def get_deficiency_detection(class_index):
     deficiency_mapping = {
-        0: 'Healthy',
-        1: 'Invalid',
-        2: 'Nitrogen',
-        3: 'Phosphorus',
-        4: 'Potassium',
-        5: 'Zinc'
+        # 0: 'Healthy',
+        0: 'Invalid',
+        1: 'Nitrogen',
+        2: 'Phosphorus',
+        3: 'Potassium',
+        # 5: 'Zinc'
     }
     return deficiency_mapping.get(class_index, 'Unknown')
 
