@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for # pyright: ignore[reportMissingImports]
-import numpy as np # pyright: ignore[reportMissingImports]
-import tensorflow as tf # pyright: ignore[reportMissingImports]
-from PIL import Image # pyright: ignore[reportMissingImports]
+from flask import Flask, request, jsonify, render_template, redirect, url_for
+import numpy as np
+import tensorflow as tf
+from PIL import Image
 import io
 import base64
-from flask_cors import CORS  # pyright: ignore[reportMissingModuleSource]
+from flask_cors import CORS 
 
 app = Flask(__name__)
 CORS(app) 
@@ -36,7 +36,7 @@ def predict_deficiency_detection():
         accuracy = prediction_probabilities[class_index] * 100  # Convert to percentage
         response_data = {'deficiency_type': deficiency_type}
 
-        if accuracy < 70.0 or class_index == 1:  # 1 corresponds to "Invalid" class
+        if accuracy < 50.0 or class_index == 0: # 1 corresponds to "Invalid" class
             response_data = {'deficiency_type': "Invalid"}
         else:
             response_data['accuracy'] = f"{accuracy:.2f}%"
@@ -45,6 +45,7 @@ def predict_deficiency_detection():
         buffered = io.BytesIO()
         image.save(buffered, format="JPEG")
         img_data = base64.b64encode(buffered.getvalue()).decode()
+        
 
         return jsonify({
             'deficiency_type': response_data['deficiency_type'],
@@ -78,7 +79,7 @@ def predict_deficiency_monitor():
         accuracy = prediction_probabilities[class_index] * 100  # Convert to percentage
         response_data = {'deficiency_type': deficiency_type}
 
-        if accuracy < 80.0 or class_index == 1:  # 1 corresponds to "Invalid" class
+        if accuracy < 50.0 or class_index == 0:  # 1 corresponds to "Invalid" class
             response_data = {'deficiency_type': "Invalid"}
         else:
             response_data['accuracy'] = f"{accuracy:.2f}%"
@@ -117,7 +118,7 @@ def predict_batch_deficiency_detection():
 
             accuracy = prediction_probabilities[class_index] * 100
             
-            if accuracy < 80.0 or class_index == 1:
+            if accuracy < 50.0 or class_index == 0:
                 prediction_data = {'deficiency_type': "Invalid", 'accuracy': None}
             else:
                 prediction_data = {
@@ -134,7 +135,7 @@ def predict_batch_deficiency_detection():
 
 # Load TFLite model and initialize interpreter for Detection
 def load_tflite_model_detection():
-    interpreter = tf.lite.Interpreter(model_path="model.tflite")
+    interpreter = tf.lite.Interpreter(model_path="cornModel.tflite")
     interpreter.allocate_tensors()
     return interpreter
 
@@ -164,19 +165,25 @@ def predict_with_tflite(image, interpreter):
     interpreter.invoke()
     
     predictions = interpreter.get_tensor(output_index)
+    
     class_index = np.argmax(predictions)
+        # 🔍 Debug print logs
+    print("Raw model output:", predictions)
+    class_index = np.argmax(predictions)
+    print("Class index:", class_index)
+    accuracy = predictions[0][class_index]
+    print("Accuracy:", accuracy)
     prediction_probabilities = predictions[0]
     return class_index, prediction_probabilities
 
 # Deficiency mapping for Detection
 def get_deficiency_detection(class_index):
     deficiency_mapping = {
-        # 0: 'Healthy',
-        0: 'Invalid',
-        1: 'Nitrogen',
-        2: 'Phosphorus',
-        3: 'Potassium',
-        # 5: 'Zinc'
+      0: 'Invalid',
+     1: 'Nitrogen',
+     2: 'Phosphorus',
+      3: 'Potassium',
+       
     }
     return deficiency_mapping.get(class_index, 'Unknown')
 
@@ -193,6 +200,5 @@ def get_deficiency_monitor(class_index):
 
 
 if __name__ == "__main__":
-    app.run()
     # app.run(host='192.168.100.105',port=8000, debug=True)
-    #  app.run()
+     app.run()
