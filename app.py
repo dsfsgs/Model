@@ -36,7 +36,7 @@ def predict_deficiency_detection():
         accuracy = prediction_probabilities[class_index] * 100  # Convert to percentage
         response_data = {'deficiency_type': deficiency_type}
 
-        if accuracy < 80.0 or class_index == 1:  # 1 corresponds to "Invalid" class
+        if accuracy < 70.0 or class_index == 1:  # 1 corresponds to "Invalid" class
             response_data = {'deficiency_type': "Invalid"}
         else:
             response_data['accuracy'] = f"{accuracy:.2f}%"
