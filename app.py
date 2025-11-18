@@ -36,7 +36,7 @@ def predict_deficiency_detection():
         accuracy = prediction_probabilities[class_index] * 100  # Convert to percentage
         response_data = {'deficiency_type': deficiency_type}
 
-        if accuracy < 50.0 or class_index == 0: # 1 corresponds to "Invalid" class
+        if accuracy < 50.0 or class_index == 1: # 1 corresponds to "Invalid" class
             response_data = {'deficiency_type': "Invalid"}
         else:
             response_data['accuracy'] = f"{accuracy:.2f}%"
@@ -79,7 +79,7 @@ def predict_deficiency_monitor():
         accuracy = prediction_probabilities[class_index] * 100  # Convert to percentage
         response_data = {'deficiency_type': deficiency_type}
 
-        if accuracy < 50.0 or class_index == 0:  # 1 corresponds to "Invalid" class
+        if accuracy < 50.0 or class_index == 1:  # 1 corresponds to "Invalid" class
             response_data = {'deficiency_type': "Invalid"}
         else:
             response_data['accuracy'] = f"{accuracy:.2f}%"
@@ -118,7 +118,7 @@ def predict_batch_deficiency_detection():
 
             accuracy = prediction_probabilities[class_index] * 100
             
-            if accuracy < 50.0 or class_index == 0:
+            if accuracy < 50.0 or class_index == 1:
                 prediction_data = {'deficiency_type': "Invalid", 'accuracy': None}
             else:
                 prediction_data = {
@@ -179,10 +179,11 @@ def predict_with_tflite(image, interpreter):
 # Deficiency mapping for Detection
 def get_deficiency_detection(class_index):
     deficiency_mapping = {
-      0: 'Invalid',
-     1: 'Nitrogen',
-     2: 'Phosphorus',
-      3: 'Potassium',
+        0: 'Healthy',
+        1: 'Invalid',
+     2: 'Nitrogen',
+     3: 'Phosphorus',
+      4: 'Potassium',
        
     }
     return deficiency_mapping.get(class_index, 'Unknown')
